@@ -701,3 +701,43 @@ procdump(void)
     printk("\n");
   }
 }
+void
+psdump(void)
+{
+  struct proc *p;
+
+  printk("\nPID   STATE       NAME\n");
+
+  for (p = proc; p < &proc[NPROC]; p++) {
+    acquire(&p->lock);
+
+    if (p->state != UNUSED) {
+      char *state;
+
+      switch (p->state) {
+      case USED:
+        state = "USED";
+        break;
+      case SLEEPING:
+        state = "SLEEPING";
+        break;
+      case RUNNABLE:
+        state = "RUNNABLE";
+        break;
+      case RUNNING:
+        state = "RUNNING";
+        break;
+      case ZOMBIE:
+        state = "ZOMBIE";
+        break;
+      default:
+        state = "UNKNOWN";
+        break;
+      }
+
+      printk("%d     %s     %s\n", p->pid, state, p->name);
+    }
+
+    release(&p->lock);
+  }
+}
